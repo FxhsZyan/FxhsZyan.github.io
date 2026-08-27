@@ -22,6 +22,7 @@
             --border: rgba(255, 255, 255, 0.08);
             --grid-color: rgba(255, 255, 255, 0.03);
             --header-bg: rgba(5, 5, 8, 0.7);
+            --footer-bg: #0b111b;
             --orb-opacity: 0.4;
             --card-glow: rgba(255, 255, 255, 0.05);
         }
@@ -36,6 +37,7 @@
             --border: rgba(0, 0, 0, 0.1);
             --grid-color: rgba(0, 0, 0, 0.04);
             --header-bg: rgba(248, 249, 250, 0.8);
+            --footer-bg: #eef2f6;
             --orb-opacity: 0.15;
             --card-glow: rgba(0, 0, 0, 0.03);
         }
@@ -586,7 +588,7 @@
             text-align: center;
             padding: 80px 8%;
             border-top: 1px solid var(--border);
-            background: var(--bg-color);
+            background: var(--footer-bg);
             position: relative;
             transition: background 0.4s ease, border-color 0.4s ease;
         }
@@ -618,6 +620,10 @@
 
         img[alt="GitHub Logo"] {
             filter: invert(1);
+        }
+
+        body.light-mode img[alt="GitHub Logo"] {
+            filter: none;
         }
 
         .contact-link:hover { 
