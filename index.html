@@ -1094,6 +1094,7 @@
         const webCanvas = document.getElementById('webCanvas');
         const webCtx = webCanvas.getContext('2d');
         const webParticles = [];
+        const webShots = [];
         let webPointer = { x: -100, y: -100, active: false };
         let webDpr = Math.min(window.devicePixelRatio || 1, 2);
         const webConfig = { maxParticles: 70, linkDistance: 118, pointerRadius: 150 };
@@ -1112,10 +1113,52 @@
             const speed = burst ? Math.random() * 3.8 + 1.2 : Math.random() * 1.5 + .35;
             webParticles.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life: 1, size: Math.random() * 2.2 + 1 });
         }
+        function spawnWebShot() {
+            const fromLeft = Math.random() < .5;
+            const startX = fromLeft ? -24 : window.innerWidth + 24;
+            const startY = Math.random() * window.innerHeight * .72 + window.innerHeight * .14;
+            const targetX = fromLeft ? Math.random() * window.innerWidth * .62 + window.innerWidth * .12 : Math.random() * window.innerWidth * .62 + window.innerWidth * .26;
+            const targetY = startY + (Math.random() - .5) * 180;
+            webShots.push({ startX, startY, targetX, targetY, life: 1, speed: .018 + Math.random() * .012 });
+        }
+        function scheduleWebShot() {
+            setTimeout(() => {
+                if (!reduceMotion && window.matchMedia('(pointer: fine)').matches) spawnWebShot();
+                scheduleWebShot();
+            }, 4200 + Math.random() * 5200);
+        }
+        function drawWebShot(shot) {
+            shot.life -= shot.speed;
+            const progress = Math.min(1, (1 - shot.life) * 1.35);
+            const x = shot.startX + (shot.targetX - shot.startX) * progress;
+            const y = shot.startY + (shot.targetY - shot.startY) * progress;
+            const opacity = Math.min(progress * 2, shot.life * 2);
+            webCtx.beginPath();
+            webCtx.moveTo(shot.startX, shot.startY);
+            webCtx.lineTo(x, y);
+            webCtx.strokeStyle = `rgba(105, 200, 255, ${opacity * .8})`;
+            webCtx.lineWidth = 1.4;
+            webCtx.stroke();
+            for (let branch = 1; branch <= 3; branch++) {
+                const branchProgress = Math.max(0, progress - branch * .08);
+                const branchX = shot.startX + (shot.targetX - shot.startX) * branchProgress;
+                const branchY = shot.startY + (shot.targetY - shot.startY) * branchProgress;
+                const branchLength = 10 + branch * 7;
+                webCtx.beginPath();
+                webCtx.moveTo(branchX, branchY);
+                webCtx.lineTo(branchX + (shot.startY < shot.targetY ? -branchLength : branchLength), branchY + branchLength * .55);
+                webCtx.strokeStyle = `rgba(226, 27, 45, ${opacity * .45})`;
+                webCtx.lineWidth = .7;
+                webCtx.stroke();
+            }
+            return shot.life > 0;
+        }
         function drawWebEffect() {
             webCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-            if (!webPointer.active) { requestAnimationFrame(drawWebEffect); return; }
-            if (Math.random() < .68) spawnWebParticle(webPointer.x, webPointer.y);
+            for (let shot = webShots.length - 1; shot >= 0; shot--) {
+                if (!drawWebShot(webShots[shot])) webShots.splice(shot, 1);
+            }
+            if (webPointer.active && Math.random() < .68) spawnWebParticle(webPointer.x, webPointer.y);
             webParticles.forEach((particle, index) => {
                 particle.x += particle.vx; particle.y += particle.vy; particle.vx *= .985; particle.vy *= .985; particle.life -= .016;
                 if (particle.life <= 0) { webParticles.splice(index, 1); return; }
@@ -1147,7 +1190,7 @@
         }, { passive: true });
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (!reduceMotion && window.matchMedia('(pointer: fine)').matches) {
-            resizeWebCanvas(); drawWebEffect();
+            resizeWebCanvas(); drawWebEffect(); scheduleWebShot();
         } else {
             webCanvas.remove();
             cursorDot.style.display = 'none';
