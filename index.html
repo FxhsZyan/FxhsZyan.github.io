@@ -1133,7 +1133,7 @@
             const startY = Math.random() * window.innerHeight * .72 + window.innerHeight * .14;
             const targetX = fromLeft ? Math.random() * window.innerWidth * .62 + window.innerWidth * .12 : Math.random() * window.innerWidth * .62 + window.innerWidth * .26;
             const targetY = startY + (Math.random() - .5) * 180;
-            webShots.push({ startX, startY, targetX, targetY, life: 1, speed: .018 + Math.random() * .012 });
+            webShots.push({ startX, startY, targetX, targetY, life: 1, speed: .018 + Math.random() * .012, radius: 54 + Math.random() * 34, rotation: Math.random() * Math.PI });
         }
         function scheduleWebShot() {
             setTimeout(() => {
@@ -1146,6 +1146,7 @@
             const progress = Math.min(1, (1 - shot.life) * 1.35);
             const x = shot.startX + (shot.targetX - shot.startX) * progress;
             const y = shot.startY + (shot.targetY - shot.startY) * progress;
+            const webProgress = Math.min(1, Math.max(0, (progress - .62) / .38));
             const opacity = Math.min(progress * 2, shot.life * 2);
             webCtx.beginPath();
             webCtx.moveTo(shot.startX, shot.startY);
@@ -1153,17 +1154,38 @@
             webCtx.strokeStyle = `rgba(105, 200, 255, ${opacity * .8})`;
             webCtx.lineWidth = 1.4;
             webCtx.stroke();
-            for (let branch = 1; branch <= 3; branch++) {
-                const branchProgress = Math.max(0, progress - branch * .08);
-                const branchX = shot.startX + (shot.targetX - shot.startX) * branchProgress;
-                const branchY = shot.startY + (shot.targetY - shot.startY) * branchProgress;
-                const branchLength = 10 + branch * 7;
-                webCtx.beginPath();
-                webCtx.moveTo(branchX, branchY);
-                webCtx.lineTo(branchX + (shot.startY < shot.targetY ? -branchLength : branchLength), branchY + branchLength * .55);
-                webCtx.strokeStyle = `rgba(226, 27, 45, ${opacity * .45})`;
-                webCtx.lineWidth = .7;
-                webCtx.stroke();
+
+            if (webProgress > 0) {
+                const ringOpacity = shot.life * webProgress;
+                const spokeCount = 8;
+                for (let spoke = 0; spoke < spokeCount; spoke++) {
+                    const angle = shot.rotation + (Math.PI * 2 * spoke) / spokeCount;
+                    const endX = shot.targetX + Math.cos(angle) * shot.radius * webProgress;
+                    const endY = shot.targetY + Math.sin(angle) * shot.radius * webProgress;
+                    webCtx.beginPath();
+                    webCtx.moveTo(shot.targetX, shot.targetY);
+                    webCtx.lineTo(endX, endY);
+                    webCtx.strokeStyle = `rgba(105, 200, 255, ${ringOpacity * .72})`;
+                    webCtx.lineWidth = .85;
+                    webCtx.stroke();
+                }
+                for (let ring = 1; ring <= 3; ring++) {
+                    const ringRadius = shot.radius * (ring / 3) * webProgress;
+                    webCtx.beginPath();
+                    for (let spoke = 0; spoke <= spokeCount; spoke++) {
+                        const angle = shot.rotation + (Math.PI * 2 * spoke) / spokeCount;
+                        const pointX = shot.targetX + Math.cos(angle) * ringRadius;
+                        const pointY = shot.targetY + Math.sin(angle) * ringRadius;
+                        const previousAngle = shot.rotation + (Math.PI * 2 * (spoke - .5)) / spokeCount;
+                        const controlX = shot.targetX + Math.cos(previousAngle) * ringRadius * 1.12;
+                        const controlY = shot.targetY + Math.sin(previousAngle) * ringRadius * 1.12;
+                        if (spoke === 0) webCtx.moveTo(pointX, pointY);
+                        else webCtx.quadraticCurveTo(controlX, controlY, pointX, pointY);
+                    }
+                    webCtx.strokeStyle = `rgba(226, 27, 45, ${ringOpacity * .62})`;
+                    webCtx.lineWidth = .7;
+                    webCtx.stroke();
+                }
             }
             return shot.life > 0;
         }
