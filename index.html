@@ -1131,9 +1131,60 @@
         const webCanvas = document.getElementById('webCanvas');
         const webCtx = webCanvas.getContext('2d');
         const webParticles = [];
+        const webShots = [];
         let webPointer = { x: -100, y: -100, active: false };
         let webDpr = Math.min(window.devicePixelRatio || 1, 2);
         const webConfig = { maxParticles: 70, linkDistance: 118, pointerRadius: 150 };
+
+        function spawnWebParticle(x, y) {
+            if (webParticles.length >= webConfig.maxParticles) return;
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 2 + 1;
+            webParticles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                size: Math.random() * 2 + 1,
+                life: 1
+            });
+        }
+
+        function drawWebShot(shot) {
+            shot.progress += 0.05;
+            if (shot.progress >= 1) return false;
+            
+            webCtx.beginPath();
+            webCtx.moveTo(shot.startX, shot.startY);
+            webCtx.lineTo(
+                shot.startX + (shot.endX - shot.startX) * shot.progress,
+                shot.startY + (shot.endY - shot.startY) * shot.progress
+            );
+            webCtx.strokeStyle = `rgba(226, 27, 45, ${1 - shot.progress})`;
+            webCtx.lineWidth = 2;
+            webCtx.stroke();
+            return true;
+        }
+
+        // Track cursor for web effect
+        window.addEventListener('pointermove', (e) => {
+            webPointer.x = e.clientX;
+            webPointer.y = e.clientY;
+            webPointer.active = true;
+            
+            // Occasionally shoot a web line
+            if (Math.random() < 0.02) {
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 100 + Math.random() * 100;
+                webShots.push({
+                    startX: webPointer.x,
+                    startY: webPointer.y,
+                    endX: webPointer.x + Math.cos(angle) * distance,
+                    endY: webPointer.y + Math.sin(angle) * distance,
+                    progress: 0
+                });
+            }
+        });
 
         // Web Field Effect from demo
         const fieldCanvas = document.getElementById('webFieldCanvas');
