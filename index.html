@@ -1280,13 +1280,7 @@
             webCanvas.style.height = `${window.innerHeight}px`;
             webCtx.setTransform(webDpr, 0, 0, webDpr, 0, 0);
         }
-        function seedWebField() {
-            webParticles.length = 0;
-            const count = Math.min(68, Math.max(28, Math.floor(window.innerWidth / 20)));
-            for (let i = 0; i < count; i++) {
-                webParticles.push({ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, vy: Math.random() * .22 + .08, drift: Math.random() * .35 - .175, r: Math.random() * 1.8 + .45, phase: Math.random() * 7 });
-            }
-        }
+
         let lastAnchor = 0;
         function drawWebEffect() {
             webCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
@@ -1318,7 +1312,7 @@
         window.addEventListener('resize', resizeWebCanvas, { passive: true });
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (!reduceMotion && window.matchMedia('(pointer: fine)').matches) {
-            resizeWebCanvas(); seedWebField(); drawWebEffect(); lastAnchor = 4300;
+            resizeWebCanvas(); drawWebEffect();
         } else {
             webCanvas.remove();
             cursorDot.style.display = 'none';
