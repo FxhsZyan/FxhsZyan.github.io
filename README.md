@@ -39,7 +39,6 @@ This site is built with plain **HTML, CSS, and JavaScript** — no frameworks, n
 |---|---|---|
 | [PDF Chat (AI-Powered)](https://github.com/FxhsZyan/PDF-Reader-Chatbot) | Desktop app that lets users upload a PDF and ask it questions in plain language using the Groq API | Python, Tkinter, Groq API |
 | [ToDoList Web App](https://zayn.dcism.org/login.php) | Task manager with user auth, group task sharing, and discussions on a LAMP stack | PHP, MySQL, jQuery |
-| [Knits & Prints](https://knitsandprints.dcism.org/) | Inventory and shopping platform for small urban thrift stores, with cart and auth | PHP (PDO), MySQL, Fetch API |
 | [Weather App](https://github.com/FxhsZyan/WeatherApp) | Cross-platform mobile app for real-time weather, favorite cities, and detailed metrics | C#, .NET MAUI |
 | [Neal's Chicken](https://neals-chicken.vercel.app/) | Restaurant web app with dynamic menus, promo banners, and a cart system | TypeScript, JavaScript, CSS |
 
