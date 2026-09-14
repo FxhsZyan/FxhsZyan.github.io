@@ -1,4 +1,4 @@
-[README (1).md](https://github.com/user-attachments/files/32193671/README.1.md)
+
 # Zyann.Dev — Personal Portfolio
 
 Live site: [fxhszyan.github.io](https://fxhszyan.github.io)
